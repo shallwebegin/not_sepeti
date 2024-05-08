@@ -87,7 +87,7 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> notlariGetir() async {
     var db = await _getDatabase();
     var sonuc = await db.query('not', orderBy: 'notID DESC');
-
+    print(sonuc);
     return sonuc;
   }
 

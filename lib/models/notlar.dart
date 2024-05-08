@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class Not {
-  late int? notID;
+  int? notID;
   late int kategoriID;
   late String notBaslik;
   late String notIcerik;
