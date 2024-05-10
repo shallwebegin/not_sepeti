@@ -40,7 +40,6 @@ class DatabaseHelper {
         if (_db == null) {
           var databasePath = await getDatabasesPath();
           var path = join(databasePath, 'appDB.db');
-          print(path);
           var file = File(path);
 
           if (!await file.exists()) {
@@ -54,6 +53,15 @@ class DatabaseHelper {
       });
     }
     return _db;
+  }
+
+  Future<List<Kategori>> kategoriListesiniGetir() async {
+    var kategorileriIcerenMapListesi = await kategorilerGetir();
+    var kategoriListesi = <Kategori>[];
+    for (Map<String, dynamic> map in kategorileriIcerenMapListesi) {
+      kategoriListesi.add(Kategori.fromMap(map));
+    }
+    return kategoriListesi;
   }
 
   Future<List<Map<String, dynamic>>> kategorilerGetir() async {
@@ -84,10 +92,20 @@ class DatabaseHelper {
 
 //////////////////////////////////////////////////////
 
+  Future<List<Not>> notListesiniGetir() async {
+    var notlarMapListesi = await notlariGetir();
+    var notListesi = <Not>[];
+
+    for (Map<String, dynamic> map in notlarMapListesi) {
+      notListesi.add(Not.fromMap(map));
+    }
+    return notListesi;
+  }
+
   Future<List<Map<String, dynamic>>> notlariGetir() async {
     var db = await _getDatabase();
-    var sonuc = await db.query('not', orderBy: 'notID DESC');
-    print(sonuc);
+    var sonuc = await db.rawQuery(
+        "select * from 'not' inner join kategori on kategori.kategoriID = 'not'.kategoriID order by notID Desc; ");
     return sonuc;
   }
 

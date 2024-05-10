@@ -1,17 +1,17 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_is_empty, must_be_immutable
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'package:not_sepeti/models/kategori.dart';
 import 'package:not_sepeti/models/notlar.dart';
+import 'package:not_sepeti/pages/not_listesi.dart';
 import 'package:not_sepeti/utils/database_helper.dart';
 
 class NotDetay extends StatefulWidget {
-  const NotDetay({
-    super.key,
-    required this.baslik,
-  });
+  NotDetay({super.key, required this.baslik, this.duzenlenecekNot});
 
   final String baslik;
+  Not? duzenlenecekNot;
 
   @override
   State<NotDetay> createState() => _NotDetayState();
@@ -21,8 +21,8 @@ class _NotDetayState extends State<NotDetay> {
   final _formKey = GlobalKey<FormState>();
   late List<Kategori> tumKategoriler;
   late DatabaseHelper databaseHelper;
-  int secilenKategoriID = 1;
-  int secilenOncelik = 0;
+  late int secilenKategoriID;
+  late int secilenOncelik;
   static final _oncelikDegerleri = ['Düşük', 'Orta', 'Yüksek'];
   late String notBaslik, notIcerik;
   @override
@@ -33,6 +33,13 @@ class _NotDetayState extends State<NotDetay> {
     databaseHelper.kategorilerGetir().then((kategorileriIcerenMapListesi) {
       for (Map<String, dynamic> okunanMap in kategorileriIcerenMapListesi) {
         tumKategoriler.add(Kategori.fromMap(okunanMap));
+      }
+      if (widget.duzenlenecekNot != null) {
+        secilenKategoriID = widget.duzenlenecekNot!.kategoriID;
+        secilenOncelik = widget.duzenlenecekNot!.notOncelik;
+      } else {
+        secilenKategoriID = 1;
+        secilenOncelik = 0;
       }
       setState(() {});
     });
@@ -46,7 +53,7 @@ class _NotDetayState extends State<NotDetay> {
         centerTitle: true,
         title: Text(widget.baslik),
       ),
-      body: tumKategoriler.length < 0
+      body: tumKategoriler.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : Container(
               child: Form(
@@ -78,8 +85,9 @@ class _NotDetayState extends State<NotDetay> {
                               value: secilenKategoriID,
                               items: kategoriItemleriOlustur(),
                               onChanged: (value) {
-                                secilenKategoriID = value!;
-                                setState(() {});
+                                setState(() {
+                                  secilenKategoriID = value!;
+                                });
                               },
                             ),
                           ),
@@ -89,6 +97,9 @@ class _NotDetayState extends State<NotDetay> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
+                        initialValue: widget.duzenlenecekNot != null
+                            ? widget.duzenlenecekNot!.notBaslik
+                            : '',
                         validator: (value) {
                           if (value!.length < 3) {
                             return 'Lütfen 3 karakterden büyük bir başlık Giriniz';
@@ -107,6 +118,9 @@ class _NotDetayState extends State<NotDetay> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
+                        initialValue: widget.duzenlenecekNot != null
+                            ? widget.duzenlenecekNot!.notIcerik
+                            : '',
                         onSaved: (newValue) {
                           notIcerik = newValue!;
                         },
@@ -176,18 +190,50 @@ class _NotDetayState extends State<NotDetay> {
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!.save();
-                              databaseHelper
-                                  .notEkle(Not(
-                                    secilenKategoriID,
-                                    notBaslik,
-                                    notIcerik,
-                                    DateFormat('hh:mm a')
-                                        .format(DateTime.now()),
-                                    secilenOncelik,
-                                  ))
-                                  .then(
-                                    (value) => Navigator.pop(context),
-                                  );
+                              if (widget.duzenlenecekNot == null) {
+                                databaseHelper
+                                    .notEkle(Not(
+                                      secilenKategoriID,
+                                      notBaslik,
+                                      notIcerik,
+                                      DateFormat('hh:mm a')
+                                          .format(DateTime.now())
+                                          .toString(),
+                                      secilenOncelik,
+                                    ))
+                                    .then(
+                                      (value) => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const NotListesi(),
+                                        ),
+                                      ).then((value) => setState(() {})),
+                                    );
+                              } else {
+                                databaseHelper
+                                    .notGuncelle(
+                                      Not.withID(
+                                        widget.duzenlenecekNot!.notID,
+                                        secilenKategoriID,
+                                        notBaslik,
+                                        notIcerik,
+                                        secilenOncelik,
+                                        DateFormat('hh:mm a').format(
+                                          DateTime.now(),
+                                        ),
+                                      ),
+                                    )
+                                    .then(
+                                      (value) => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const NotListesi(),
+                                        ),
+                                      ).then((value) => setState(() {})),
+                                    );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(

@@ -2,6 +2,7 @@
 class Not {
   int? notID;
   late int kategoriID;
+  String? kategoriBaslik;
   late String notBaslik;
   late String notIcerik;
   late String notTarih;
@@ -29,6 +30,7 @@ class Not {
     this.notID = map['notID'];
     this.kategoriID = map['kategoriID'];
     this.notBaslik = map['notBaslik'];
+    this.kategoriBaslik = map['kategoriBaslik'];
     this.notIcerik = map['notIcerik'];
     this.notOncelik = map['notOncelik'];
     this.notTarih = map['notTarih'];

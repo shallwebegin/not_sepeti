@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:not_sepeti/models/kategori.dart';
+import 'package:not_sepeti/pages/kategori_islemleri.dart';
 import 'package:not_sepeti/pages/not_detay.dart';
+import 'package:not_sepeti/pages/notlari_listele.dart';
 import 'package:not_sepeti/utils/database_helper.dart';
 
-class NotListesi extends StatelessWidget {
-  NotListesi({super.key});
+class NotListesi extends StatefulWidget {
+  const NotListesi({super.key});
 
+  @override
+  State<NotListesi> createState() => _NotListesiState();
+}
+
+class _NotListesiState extends State<NotListesi> {
   DatabaseHelper databaseHelper = DatabaseHelper();
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -16,6 +24,21 @@ class NotListesi extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Not Sepeti'),
         centerTitle: true,
+        actions: [
+          PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(Icons.category),
+                    title: Text('Kategoriler'),
+                    onTap: _kategorilerSayfasinaGit,
+                  ),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -46,7 +69,7 @@ class NotListesi extends StatelessWidget {
           ),
         ],
       ),
-      body: Container(),
+      body: const Notlar(),
     );
   }
 
@@ -115,9 +138,17 @@ class NotListesi extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const NotDetay(
+        builder: (context) => NotDetay(
           baslik: 'Yeni Not',
         ),
+      ),
+    );
+  }
+
+  void _kategorilerSayfasinaGit() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Kategoriler(),
       ),
     );
   }

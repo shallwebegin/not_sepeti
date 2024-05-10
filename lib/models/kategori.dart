@@ -12,14 +12,14 @@ class Kategori {
   Map<String, dynamic> toMap() {
     var map = Map<String, dynamic>();
     map['kategoriID'] = kategoriID;
-    map['kateogriBaslik'] = kateogriBaslik;
+    map['kategoriBaslik'] = kateogriBaslik;
 
     return map;
   }
 
   Kategori.fromMap(Map<String, dynamic> map) {
     this.kategoriID = map['kategoriID'];
-    this.kateogriBaslik = map['kateogriBaslik'];
+    this.kateogriBaslik = map['kategoriBaslik'];
   }
 
   @override
